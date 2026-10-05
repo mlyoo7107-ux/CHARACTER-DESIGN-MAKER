@@ -1,0 +1,18 @@
+/* 이용약관 · 개인정보처리방침 (캐릭터 메이커 색상) */
+:root { --a: #6257A8; --b: #F6F5FA; --l: #E4E1EE; --t: #221E33; --m: #6F6A85; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--b); font-family: 'Pretendard', -apple-system, 'Malgun Gothic', sans-serif; color: var(--t); word-break: keep-all; }
+.wrap { max-width: 720px; margin: auto; padding: 40px 20px 60px; }
+h1 { font-size: 24px; margin: 0 0 6px; }
+.updated { color: var(--m); font-size: 13px; margin: 0 0 30px; }
+h2 { font-size: 16px; margin: 28px 0 8px; border-top: 1px solid var(--l); padding-top: 20px; }
+h1 + h2, .updated + h2 { border-top: 0; padding-top: 0; }
+p, li { font-size: 14px; line-height: 1.75; color: var(--t); }
+ul, ol { padding-left: 20px; margin: 6px 0; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 10px 0; background: #fff; }
+th, td { border: 1px solid var(--l); padding: 8px 10px; text-align: left; vertical-align: top; }
+th { background: #EEEBFA; }
+.back { display: inline-block; margin-bottom: 20px; color: var(--a); font-size: 13px; text-decoration: none; font-weight: 600; }
+.note { background: #fff; border: 1px solid var(--l); border-radius: 10px; padding: 14px; font-size: 13px; color: var(--m); margin-top: 30px; }
+footer { text-align: center; padding: 30px 20px; }
+footer img { max-width: 110px; }
