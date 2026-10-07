@@ -387,22 +387,23 @@ input[type=text]:focus, textarea:focus { border-color: var(--brand); box-shadow:
 
 .out { padding: 20px 22px; box-shadow: none; }
 /* ① 프로필 접기 */
-details.profile > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+details.profile > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px 12px; }
 details.profile > summary::-webkit-details-marker { display: none; }
 details.profile > summary h2 { margin: 0; font-size: 15px; letter-spacing: .04em; color: var(--brand); }
 details.profile > summary h2::before { content: '▸ '; }
 details.profile[open] > summary h2::before { content: '▾ '; }
-details.profile > summary p { margin: 0; color: var(--ink-3); font-size: 13px; flex: 1; }
+details.profile > summary p { margin: 0; color: var(--ink-3); font-size: 13px; grid-column: 1 / -1; grid-row: 2; }
 details.profile[open] > summary { margin-bottom: 12px; }
 /* ★ 핵심 특징 */
 .core-box { background: #FFF4D6; border: 1px solid #F2C94C; border-radius: 16px; padding: 18px 20px; }
 .core-chip small { font-size: 11px; color: var(--ink-3); font-weight: 700; }
 .core-chip.on { background: #F2A900; border-color: #F2A900; color: #2b2000; }
 .core-chip.on small { color: #5a4300; }
-.out > header, .sub-out > header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+/* 카드 제목: [제목 · 버튼] 윗줄, [설명] 아랫줄 — 좁은 화면에서도 글자가 세로로 깨지지 않게 */
+.out > header, .sub-out > header { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px 12px; margin-bottom: 12px; }
 .out > header h2 { margin: 0; font-size: 15px; letter-spacing: .04em; color: var(--brand); }
-.out > header p { margin: 0; color: var(--ink-3); font-size: 13px; flex: 1; }
-.out > header .btn { margin-left: auto; }
+.out > header p { margin: 0; color: var(--ink-3); font-size: 13px; grid-column: 1 / -1; grid-row: 2; }
+.out > header .btn, details.profile > summary .btn { grid-column: 2; grid-row: 1; justify-self: end; white-space: nowrap; }
 .out pre, .sub-out pre {
   margin: 0; white-space: pre-wrap; word-break: keep-all; overflow-wrap: anywhere;
   font-family: ui-monospace, 'D2Coding', Consolas, monospace; font-size: 13px; line-height: 1.65;
@@ -418,7 +419,7 @@ details.profile[open] > summary { margin-bottom: 12px; }
 .app-group h3 { margin: 0 0 10px; font-size: 16px; }
 .sub-out + .sub-out { margin-top: 14px; }
 .sub-out header b { font-size: 14px; }
-.sub-out header .btn { margin-left: auto; }
+.sub-out header .btn { grid-column: 2; grid-row: 1; justify-self: end; white-space: nowrap; }
 .result-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 10px; }
 .result-actions .danger { margin-left: auto; }
 .save-box > header h2 { color: var(--ink); letter-spacing: 0; font-size: 17px; }

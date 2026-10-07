@@ -6,6 +6,23 @@
 const HANGUL = /[가-힣]/;
 
 const TR_DICT = [
+  /* --- ✨추천 의상 문구 (ai.js) — 문장 그대로 자연스러운 영어로 --- */
+  ['반사띠가 있는 노란 안전 조끼', 'yellow safety vest with reflective stripes'], ['노란 안전모', 'yellow safety helmet'], ['정지 표지판 모양 깃발', 'stop-sign-shaped flag'],
+  ['경찰 모자', 'police cap'], ['파란 제복', 'blue uniform'], ['별 모양 배지', 'star-shaped badge'],
+  ['초록 앞치마', 'green apron'], ['나뭇잎 모자', 'leaf hat'], ['재활용 바구니', 'recycling basket'],
+  ['하늘색 가운', 'sky-blue gown'], ['물방울 모양 배지', 'water-drop-shaped badge'], ['비누', 'bar of soap'],
+  ['챙 있는 우체부 모자', 'brimmed mail carrier cap'], ['단추 달린 짧은 제복 조끼', 'short buttoned uniform vest'], ['편지가 든 어깨 가방', 'shoulder bag full of letters'],
+  ['하얀 요리사 모자', 'white chef hat'], ['나무 국자', 'wooden ladle'],
+  ['탐험가 모자', 'explorer hat'], ['주머니 많은 조끼', 'multi-pocket vest'], ['튼튼한 부츠', 'sturdy boots'], ['돋보기', 'magnifying glass'],
+  ['하얀 가운', 'white coat'], ['뾰족한 마법사 모자', 'pointy wizard hat'], ['별 무늬 망토', 'star-patterned cape'], ['작은 지팡이', 'small magic wand'],
+  ['가벼운 갑옷 조끼', 'light armor vest'], ['나무 방패', 'wooden shield'],
+  ['단정한 셔츠', 'neat collared shirt'], ['작은 책가방', 'small school backpack'], ['니트 카디건', 'knit cardigan'], ['이름표', 'name tag'], ['지시봉', 'pointer stick'],
+  ['소방관 헬멧', 'firefighter helmet'], ['노란 반사띠가 있는 소방복', 'firefighter suit with yellow reflective stripes'], ['고무 장화', 'rubber boots'],
+  ['밀짚모자', 'straw hat'], ['작은 물뿌리개', 'small watering can'], ['물감 묻은 앞치마', 'paint-stained apron'],
+  ['작은 나비넥타이', 'small bow tie'], ['가슴의 하트 모양 표시등', 'heart-shaped indicator light on the chest'],
+  ['포인트 컬러 목도리', 'accent-colored scarf'], ['포인트 컬러 후드티', 'accent-colored hoodie'], ['포인트 컬러', 'accent-colored'],
+  ['부드러운 니트', 'soft knit sweater'], ['작은 망토', 'small cape'], ['단색 티셔츠', 'solid-color t-shirt'], ['단색', 'solid-color'],
+
   /* --- 자주 쓰는 구 --- */
   ['살짝 접혀 있음', 'slightly folded'], ['살짝 접힌', 'slightly folded'], ['살짝 접힘', 'slightly folded'], ['접혀 있음', 'folded'], ['접힌', 'folded'], ['접힘', 'folded'],
   ['꼬리 끝', 'tail tip'], ['귀 끝', 'ear tips'], ['발끝', 'paw tips'], ['손끝', 'fingertips'],
