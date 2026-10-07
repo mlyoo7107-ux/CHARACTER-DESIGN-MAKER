@@ -555,6 +555,25 @@ body.bible-open { overflow: hidden; }
   .char-card h2 { font-size: 17px; }
   .char-card blockquote { margin-top: 10px; padding: 8px 10px; font-size: 13px; }
   .char-card .side-locks, .char-card .swatches { display: none; }
-  .result-actions .btn { flex: 1 1 45%; }
+  .result-actions .btn { flex: 1 1 45%; word-break: keep-all; }
   .result-actions .danger { margin-left: 0; }
+}
+
+/* ---------- 결과: 빈 항목 안내 · 바로가기 ---------- */
+.missing-box { margin: 0 0 16px; padding: 14px 16px; border-radius: 12px; background: #FFF8EC; border: 1px solid #F2D27A; }
+.missing-box b { color: #7a5600; }
+.missing-box p { margin: 4px 0 10px; font-size: 14px; color: var(--ink-2); }
+.miss-links { display: flex; flex-wrap: wrap; gap: 8px; }
+.result-toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+.result-toc a { padding: 8px 14px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); color: var(--ink-2); font-size: 14px; font-weight: 600; text-decoration: none; }
+.result-toc a:hover { border-color: var(--brand); color: var(--brand); }
+
+/* 휴대폰: 작은 버튼도 손가락으로 누르기 쉬운 크기로 */
+@media (max-width: 640px) {
+  .lock-toggle, .icon-btn { min-height: 40px; min-width: 40px; }
+  .lock-toggle { padding: 8px 14px; }
+  .result-toc { position: sticky; top: calc(var(--head-h) + 6px); z-index: 5; flex-wrap: nowrap; overflow-x: auto; padding: 6px 0; background: var(--bg); scrollbar-width: none; }
+  .result-toc a { flex: none; }
+  .result .card[id] { scroll-margin-top: 60px; } /* html의 scroll-padding(머리말 높이)에 바로가기 줄 높이만 더함 */
+  .preset { min-height: 36px; }
 }

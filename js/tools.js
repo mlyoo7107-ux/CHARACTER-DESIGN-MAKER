@@ -32,17 +32,6 @@ const TOOLS = [
     prefix: { ko: '첨부한 이미지의 캐릭터를 그대로 유지한 채 다음 이미지를 만들어 주세요.', en: 'Keep the character from the attached image exactly the same and create the following image.' },
   },
   {
-    key: 'midjourney', name: 'Midjourney', icon: '⛵',
-    desc: '한 줄 프롬프트 + 파라미터(--ar, --no, --oref)',
-    steps: [
-      '③ MASTER PROMPT로 기본 이미지를 만들고 가장 좋은 1장을 업스케일합니다.',
-      '그 이미지의 주소(URL)를 아래 「기준 이미지 URL」에 붙여 넣으세요.',
-      '이후 프롬프트에는 --oref(Omni Reference, V7)가 자동으로 붙습니다. --ow 값(기본 100)을 높이면 더 강하게 유지돼요.',
-    ],
-    single: true,
-    note: '미드저니는 영어 프롬프트에서 가장 정확해요.',
-  },
-  {
     key: 'ideogram', name: 'Ideogram', icon: '🅸',
     desc: 'Ideogram Character — 이미지 1장으로 같은 캐릭터 유지',
     steps: [
@@ -72,20 +61,7 @@ function formatFor(toolKey, text, meta = {}, lang = 'en') {
   const t = toolOf(toolKey);
   /* 한 줄에 하나씩인 목록형 프롬프트(이모티콘 개별)는 줄마다 따로 변환 */
   if (meta.list) {
-    return text.split('\n').filter(Boolean).map((line) => formatFor(toolKey, line, { ...meta, list: false }, lang)).join(t.single ? '\n\n' : '\n\n---\n');
-  }
-  if (t.single) {
-    const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
-    /* 한 줄로 합치기 — "…순서대로:" 다음 줄은 쉼표 없이 이어 붙임 */
-    const body = lines
-      .filter((l) => !/^(Avoid|피해야 할 것)\s*:/.test(l))
-      .map((l) => l.replace(/\.$/, ''))
-      .reduce((acc, l) => (!acc ? l : /:$/.test(acc) ? `${acc} ${l}` : `${acc}, ${l}`), '');
-    const params = [];
-    if (meta.ar) params.push(`--ar ${meta.ar}`);
-    params.push('--no text, watermark, extra limbs');
-    if (meta.derived) params.push(`--oref ${state.refUrl && state.refUrl.trim() ? state.refUrl.trim() : '[마스터 이미지 URL]'} --ow 100`);
-    return `${body} ${params.join(' ')}`;
+    return text.split('\n').filter(Boolean).map((line) => formatFor(toolKey, line, { ...meta, list: false }, lang)).join('\n\n---\n');
   }
   const parts = [];
   if (meta.derived && t.prefix) parts.push(t.prefix[lang]);

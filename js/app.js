@@ -16,7 +16,6 @@ function fresh() {
     tool: 'generic',
     tr: {},
     refImage: '',
-    refUrl: '',
     core: null, // ★핵심 특징 — null이면 자동 추천
   };
 }
@@ -25,15 +24,38 @@ function fresh() {
 const safeImage = (s) => (typeof s === 'string' && /^data:image\/(png|jpe?g|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(s) ? s : '');
 
 /* 저장된 값·불러온 파일을 V2 형식으로 정리 (V1 파일 호환) */
+const isObj = (x) => !!x && typeof x === 'object' && !Array.isArray(x);
+const strs = (a) => (Array.isArray(a) ? a.filter((x) => typeof x === 'string') : []);
+const str = (x) => (typeof x === 'string' ? x : '');
 function normalize(raw, version) {
-  const st = { ...fresh(), ...raw };
+  /* 일부가 빠지거나 형식이 다른 값이 있어도 화면이 멈추지 않도록 항목마다 검사 */
+  const st = { ...fresh(), ...(isObj(raw) ? raw : {}) };
+  delete st.refUrl; // 미드저니 제거로 더 이상 쓰지 않음
   st.refImage = safeImage(st.refImage);
-  if (typeof st.refUrl !== 'string' || !/^https?:\/\//.test(st.refUrl)) st.refUrl = '';
-  if (!st.v || typeof st.v !== 'object') st.v = {};
-  if (!Array.isArray(st.locks)) st.locks = [];
-  if (!Array.isArray(st.unlocked)) st.unlocked = [];
-  if (!Array.isArray(st.apps)) st.apps = [];
-  if (st.core !== null && !Array.isArray(st.core)) st.core = null;
+  const v = isObj(st.v) ? st.v : {};
+  st.v = {};
+  Object.keys(v).forEach((id) => {
+    const x = v[id];
+    if (typeof x === 'string') st.v[id] = x;
+    else if (isObj(x)) st.v[id] = { sel: strs(x.sel), customOn: !!x.customOn, custom: str(x.custom) };
+  });
+  const col = isObj(st.colors) ? st.colors : {};
+  st.colors = {};
+  ['main', 'sub', 'point'].forEach((k) => {
+    const c = isObj(col[k]) ? col[k] : {};
+    st.colors[k] = { hex: str(c.hex), name: str(c.name) };
+  });
+  st.locks = strs(st.locks);
+  st.unlocked = strs(st.unlocked);
+  st.apps = strs(st.apps).filter((k) => APPS.some((a) => a.key === k));
+  st.core = Array.isArray(st.core) ? strs(st.core) : null;
+  st.idOverride = str(st.idOverride);
+  st.lang = st.lang === 'ko' ? 'ko' : 'en';
+  st.tool = TOOLS.some((t) => t.key === st.tool) ? st.tool : 'generic';
+  const tr = isObj(st.tr) ? st.tr : {};
+  st.tr = {};
+  Object.keys(tr).forEach((k) => { if (typeof tr[k] === 'string') st.tr[k] = tr[k]; });
+  if (typeof st.autoApp !== 'string') delete st.autoApp;
   if (version !== undefined && version < 2) {
     /* V1 → V2: 단계 구성이 달라서 처음 단계부터, 바뀐 선택지 이름 정리 */
     st.step = 0;
@@ -464,7 +486,7 @@ function appsField() {
 
 /* ---------- 단계 렌더링 ---------- */
 function renderStepper() {
-  $('#stepper').innerHTML = STEPS.map((s, i) => `<button type="button" class="${i === state.step ? 'cur' : ''}${i < state.step ? ' done' : ''}" data-act="goto" data-i="${i}">
+  $('#stepper').innerHTML = STEPS.map((s, i) => `<button type="button" class="${i === state.step ? 'cur' : ''}${i < state.step ? ' done' : ''}" data-act="goto" data-i="${i}"${i === state.step ? ' aria-current="step"' : ''}>
     <b>${s.no}</b><span>${esc(s.title)}</span></button>`).join('');
   /* 현재 단계가 보이도록 스테퍼만 가로로 스크롤 (페이지 세로 위치는 건드리지 않음) */
   const bar = $('#stepper');
@@ -475,7 +497,20 @@ function renderStepper() {
 function render() {
   /* 다시 그려도 보던 위치 유지 */
   const y = window.scrollY;
-  renderView();
+  try {
+    renderView();
+  } catch (err) {
+    /* 예상하지 못한 값으로 화면을 못 그릴 때 — 하얀 화면 대신 백업·새로 시작 안내 */
+    console.error(err);
+    main.innerHTML = `<section class="step recover">
+      <header class="step-head"><span class="no">ERROR</span><h1>작업 내용을 화면에 표시하지 못했어요</h1>
+      <p class="q">저장된 내용 중 일부가 예상과 달라요. 먼저 작업파일로 백업한 뒤 새로 시작해 주세요.</p></header>
+      <div class="result-actions">
+        <button type="button" class="btn" data-act="save-json">💾 작업파일로 백업</button>
+        <button type="button" class="btn primary" data-act="recover-reset">🔄 새로 시작하기</button>
+      </div>
+    </section>`;
+  }
   window.scrollTo(0, y);
 }
 function renderView() {
@@ -542,8 +577,8 @@ function stepFilled(s) {
 }
 
 /* ---------- 결과 페이지 ---------- */
-function promptCard(title, key, text, sub) {
-  return `<article class="card out">
+function promptCard(title, key, text, sub, id) {
+  return `<article class="card out"${id ? ` id="${id}"` : ''}>
     <header><h2>${title}</h2>${sub ? `<p>${sub}</p>` : ''}<button type="button" class="btn small" data-act="copy" data-key="${key}">프롬프트 복사</button></header>
     <pre>${esc(text)}</pre>
   </article>`;
@@ -596,13 +631,34 @@ function refCard() {
       <div class="ref-guide">
         <b>${t.icon} ${esc(t.name)}에서 사용하는 방법</b>
         <ol>${t.steps.map((s) => `<li>${esc(s)}</li>`).join('')}</ol>
-        ${t.key === 'midjourney' ? `<label class="field-text"><span class="label sub">기준 이미지 URL (--oref에 사용)</span>
-          <input type="text" data-act="ref-url" value="${esc(state.refUrl || '')}" placeholder="https://cdn.midjourney.com/..."></label>` : ''}
         ${t.prefix ? '<p class="muted small">④·⑤ 프롬프트 맨 앞에 "첨부한 기준 이미지와 같은 캐릭터로" 문장이 자동으로 들어가요.</p>' : ''}
-        ${t.note && state.lang === 'ko' ? `<p class="warn small">⚠ ${esc(t.note)}</p>` : ''}
       </div>
     </div>
   </article>`;
+}
+
+/* 결과의 품질을 좌우하는 핵심 입력이 비었는지 확인 */
+function missingBox() {
+  const has = (id) => sel(id).length || customOf(id);
+  const miss = [
+    ['purpose', '사용 목적', 'purpose'],
+    ['type', '캐릭터 종류', 'concept'],
+    ['personality', '성격', 'concept'],
+    ['silhouette', '형태(실루엣)', 'form'],
+    ['style', '표현 스타일', 'style'],
+  ].filter(([id]) => !has(id));
+  if (!miss.length) return '';
+  return `<div class="missing-box">
+    <b>⚠ 아직 비어 있는 항목이 ${miss.length}개 있어요</b>
+    <p>비어 있으면 프롬프트가 너무 단순해져서 원하는 캐릭터가 나오기 어려워요. 채우면 결과가 훨씬 좋아져요.</p>
+    <div class="miss-links">${miss.map(([, label, step]) => `<button type="button" class="chip" data-act="goto" data-i="${stepIndex(step)}">${esc(label)} 채우기 →</button>`).join('')}</div>
+  </div>`;
+}
+
+/* 결과 페이지 바로가기 목차 — 긴 결과에서 원하는 곳으로 이동 */
+function resultToc() {
+  const items = [['r-brief', '기획서'], ['r-master', '마스터'], ['r-sheet', '캐릭터 시트'], ['r-apps', '활용'], ['r-save', '저장 · 갤러리']];
+  return `<nav class="result-toc" aria-label="결과 바로가기">${items.map(([id, t]) => `<a href="#${id}">${t}</a>`).join('')}</nav>`;
 }
 
 function renderResult() {
@@ -633,9 +689,11 @@ function renderResult() {
       </div>
     </header>
 
+    ${missingBox()}
+    ${resultToc()}
     ${trPanel()}
 
-    <article class="card out rationale">
+    <article class="card out rationale" id="r-brief">
       <header><h2>⓪ DESIGN BRIEF — 디자인 기획서</h2><p>왜 이렇게 디자인했는가</p><button type="button" class="btn small" data-act="copy" data-key="rationale">복사하기</button></header>
       ${r.rationale.length ? `<dl>${r.rationale.map((x) => `<div><dt>${esc(x.t)}</dt><dd>${esc(x.d)}</dd></div>`).join('')}</dl>` : '<p class="empty">STEP 01~03을 입력하면 디자인 근거가 정리돼요.</p>'}
     </article>
@@ -653,9 +711,9 @@ function renderResult() {
       <pre>${esc(r.identity)}</pre>
     </article>
 
-    ${promptCard('③ MASTER PROMPT', 'master', f.master, '캐릭터의 기본 이미지 생성용 — 가장 먼저 만드세요')}
+    ${promptCard('③ MASTER PROMPT', 'master', f.master, '캐릭터의 기본 이미지 생성용 — 가장 먼저 만드세요', 'r-master')}
     ${refCard()}
-    <article class="card out">
+    <article class="card out" id="r-sheet">
       <header><h2>④ CHARACTER SHEET PROMPT</h2><p>한 장에 모두 담으면 측면·후면이 빠지기 쉬워서 4개로 나눴어요 — 순서대로 만드세요</p></header>
       ${f.sheets.map((s, j) => `<div class="sub-out">
         <header><b>${esc(s.title)}</b><button type="button" class="btn small" data-act="copy" data-key="sheet-${j}">프롬프트 복사</button></header>
@@ -663,13 +721,13 @@ function renderResult() {
         <pre>${esc(s.text)}</pre></div>`).join('')}
     </article>
 
-    <article class="card out">
+    <article class="card out" id="r-apps">
       <header><h2>⑤ APPLICATION PROMPT</h2><p>사용 목적과 활용 방향에 맞춰 자동 생성</p></header>
       ${apps || `<p class="empty">STEP 11에서 활용 방향을 선택하면 목적별 프롬프트가 만들어져요. <button type="button" class="link" data-act="goto" data-i="${stepIndex('apps')}">활용 방향 선택하기 →</button></p>`}
     </article>
 
     <!-- 프로젝트 저장 · 불러오기 (제품 디자인 메이커와 같은 구성) -->
-    <article class="card out save-box">
+    <article class="card out save-box" id="r-save">
       <header><h2>프로젝트 저장 · 불러오기</h2></header>
       <p class="muted small">작업파일을 저장하면 다음 수업에서 다시 불러와 선택 항목과 입력 내용을 이어서 수정할 수 있어요.</p>
       <div class="result-actions">
@@ -860,6 +918,7 @@ document.addEventListener('click', (e) => {
     case 'restart':
       if (!confirm('입력한 내용을 모두 지우고 처음부터 다시 만들까요?\n(필요하면 먼저 프로젝트를 저장하세요)')) return;
       state = fresh(); save(); render(); window.scrollTo({ top: 0 }); return;
+    case 'recover-reset': state = fresh(); save(); render(); window.scrollTo({ top: 0 }); return;
     default: return;
   }
   save();
@@ -900,7 +959,6 @@ document.addEventListener('input', (e) => {
       if (ko) state.tr = { ...(state.tr || {}), [ko]: el.value };
       break;
     }
-    case 'ref-url': state.refUrl = el.value; break;
     default: return;
   }
   save();
@@ -908,8 +966,8 @@ document.addEventListener('input', (e) => {
 });
 
 document.addEventListener('change', (e) => {
-  /* 번역·URL 수정을 마치면 프롬프트 다시 생성 */
-  if (e.target.dataset && (e.target.dataset.act === 'tr' || e.target.dataset.act === 'ref-url')) { render(); return; }
+  /* 번역 수정을 마치면 프롬프트 다시 생성 */
+  if (e.target.dataset && e.target.dataset.act === 'tr') { render(); return; }
   /* 컬러 피커를 닫을 때 지우기 버튼 등을 갱신 */
   if (e.target.dataset && (e.target.dataset.act === 'color-pick' || e.target.dataset.act === 'color-hex')) render();
 });
@@ -939,7 +997,10 @@ $('#fileInput').addEventListener('change', (e) => {
       const data = JSON.parse(reader.result);
       if (data.app !== 'colorm-character-maker' || !data.state || typeof data.state !== 'object') throw new Error('format');
       const ver = +data.version || 1;
+      const prev = state;
       state = normalize(data.state, ver);
+      /* 불러온 내용으로 결과까지 만들어 보고, 안 되면 지금 작업을 그대로 둠 */
+      try { buildAll(state.lang); } catch (err) { state = prev; throw err; }
       save(); render();
       toast(ver < 2 ? '예전(V1) 프로젝트를 불러왔어요. 새로 생긴 타깃·브리프 단계를 채워 주세요' : '프로젝트를 불러왔어요');
     } catch (err) {
@@ -983,7 +1044,7 @@ $('#btnSave').addEventListener('click', saveProject);
 $('#btnLoad').addEventListener('click', () => $('#fileInput').click());
 $('#btnNew').addEventListener('click', () => {
   if (!confirm('입력한 내용을 모두 지우고 새 캐릭터를 만들까요?')) return;
-  state = fresh(); save(); render();
+  state = fresh(); save(); render(); window.scrollTo({ top: 0 });
 });
 
 /* 고정 머리말(로고 바 + 단계 메뉴)의 실제 높이를 CSS에 알려 줌 — 사이드 카드 위치·화면 이동 위치 보정 */
