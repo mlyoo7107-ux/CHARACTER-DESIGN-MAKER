@@ -17,6 +17,7 @@ function fresh() {
     tr: {},
     refImage: '',
     core: null, // ★핵심 특징 — null이면 자동 추천
+    titleSeed: 0, titlePick: 0, titleCustom: '', // 작품 제목 (추천 · 직접 쓰기)
   };
 }
 
@@ -50,6 +51,9 @@ function normalize(raw, version) {
   st.apps = strs(st.apps).filter((k) => APPS.some((a) => a.key === k));
   st.core = Array.isArray(st.core) ? strs(st.core) : null;
   st.idOverride = str(st.idOverride);
+  st.titleSeed = Math.max(0, Math.floor(+st.titleSeed || 0));
+  st.titlePick = [0, 1, 2].includes(st.titlePick) ? st.titlePick : 0;
+  st.titleCustom = str(st.titleCustom).slice(0, 40);
   st.lang = st.lang === 'ko' ? 'ko' : 'en';
   st.tool = TOOLS.some((t) => t.key === st.tool) ? st.tool : 'generic';
   const tr = isObj(st.tr) ? st.tr : {};
@@ -681,9 +685,83 @@ function missingBox() {
   </div>`;
 }
 
+/* ---------- 작품 제목 추천 (갤러리 등록에 자동 반영) ---------- */
+const TITLE_LABELS = ['① 캐릭터 중심형', '② 활용 중심형', '③ 콘셉트 중심형'];
+const PURPOSE_TITLES = {
+  picturebook: [(n) => `${n}의 그림책 이야기`, (n) => `그림책 주인공 ${n}`, (n) => `${n}의 첫 번째 그림책`],
+  brand: [(n) => `우리 브랜드 마스코트 ${n}`, (n) => `${n} 브랜드 캐릭터`, (n) => `모두의 친구, 마스코트 ${n}`],
+  goods: [(n) => `${n} 굿즈 컬렉션`, (n) => `${n}의 굿즈 세상`, (n) => `갖고 싶은 ${n} 굿즈`],
+  emoticon: [(n) => `${n}의 감정 이모티콘`, (n) => `${n}의 하루 이모티콘`, (n) => `마음을 전하는 ${n} 이모티콘`],
+  edu: [(n) => `${josa(n, '과', '와')} 함께 배워요`, (n) => `${n} 선생님의 배움 교실`, (n) => `${josa(n, '과', '와')} 떠나는 배움 여행`],
+  sns: [(n) => `${n}의 일상 기록`, (n) => `오늘의 ${n}`, (n) => `${n}의 SNS 하루`],
+  video: [(n) => `${n}의 짧은 애니메이션`, (n) => `움직이는 ${n}`, (n) => `${n}의 반짝 영상`],
+  game: [(n) => `${n}의 모험 게임`, (n) => `게임 속 영웅 ${n}`, (n) => `${n}의 스테이지 대모험`],
+};
+const CONCEPT_TITLES = [
+  (n, a) => `${josa(n, '과', '와')} 함께 ${a} 하루`,
+  (n, a) => `${josa(n, '과', '와')} 함께 ${a} 발견!`,
+  (n, a) => `${n}의 ${a} 모험`,
+];
+/* 제목에 어울리는 말로 바꾸기 (예: 친근한 → 다정한 하루) */
+const TITLE_FEEL = {
+  친근한: '다정한', '신뢰감 있는': '든든한', 안심되는: '포근한', 활기찬: '신나는', 귀여운: '사랑스러운', 전문적인: '똑똑한',
+  재미있는: '신나는', 세련된: '반짝이는', 용감한: '씩씩한', 차분한: '평온한', 밝은: '환한', 활발한: '신나는',
+  장난꾸러기: '장난스러운', 수줍은: '설레는', '호기심 많은': '신기한',
+};
+function titleOptions(seed) {
+  const type = vals('type', 'ko')[0];
+  const kind = vals('subtype', 'ko')[0] || (type !== '사람' ? type : '') || '';
+  const name = txt('name') || kind || '나의 캐릭터';
+  const adjs = [...sel('personality'), ...sel('impression')].filter((v, i, a) => a.indexOf(v) === i);
+  const adj = adjs.length ? adjs[seed % adjs.length] : '';
+  const job = txt('job');
+  const k = kind !== name ? kind : '';
+  /* ① 이름·성격·종류 */
+  const c1 = [
+    [adj, k, name],
+    job ? [`${name},`, job] : [adj || '반가운', '친구', name],
+    adj && k ? [`${josa(name, '은', '는')}`, adj, k] : [adj || '처음 만나는', k, name],
+  ][seed % 3].filter(Boolean).join(' ');
+  /* ② 사용 목적 */
+  const pt = PURPOSE_TITLES[purposeKey()];
+  const c2 = pt ? pt[seed % pt.length](name) : (/캐릭터$/.test(name) ? `${name} 디자인 노트` : `${name} 캐릭터 디자인`);
+  /* ③ 인상·무드 */
+  const imp = sel('impression');
+  const base = imp[seed % (imp.length || 1)] || adj;
+  const feel = TITLE_FEEL[base] || base || '즐거운';
+  const c3 = CONCEPT_TITLES[seed % CONCEPT_TITLES.length](name, feel);
+  return [c1, c2, c3].map((t) => t.replace(/\s+/g, ' ').trim().slice(0, 40));
+}
+function finalTitle() {
+  const custom = (state.titleCustom || '').trim();
+  return custom || titleOptions(state.titleSeed || 0)[state.titlePick || 0];
+}
+function titleBox() {
+  const opts = titleOptions(state.titleSeed || 0);
+  const custom = (state.titleCustom || '').trim();
+  return `<article class="card out title-box" id="r-title">
+    <header><h2>🏷 작품 제목</h2><p>선택한 내용으로 추천했어요 — 고른 제목이 갤러리 등록 화면에 자동으로 들어가요</p></header>
+    <div class="title-cards">${opts.map((t, i) => `<button type="button" class="title-card${!custom && i === (state.titlePick || 0) ? ' on' : ''}" data-act="title-pick" data-i="${i}" aria-pressed="${!custom && i === (state.titlePick || 0)}">
+      <small>${TITLE_LABELS[i]}</small><b>${esc(t)}</b></button>`).join('')}</div>
+    <div class="title-actions">
+      <button type="button" class="btn small" data-act="title-more">🔄 다른 제목 추천</button>
+      <label class="title-edit"><span>✏️ 직접 쓰기</span>
+        <input type="text" data-act="title-custom" maxlength="40" value="${esc(state.titleCustom || '')}" placeholder="${esc(opts[state.titlePick || 0])}"></label>
+    </div>
+    <p class="muted small">직접 쓴 제목이 있으면 그 제목을 써요. 지우면 위에서 고른 추천 제목으로 돌아가요.</p>
+  </article>`;
+}
+/* 갤러리 올리기 주소 — 제목 · 한 줄 컨셉 · 카테고리 · 태그를 함께 넘김 */
+function galleryUrl() {
+  const cat = sel('purpose')[0] || '기타';
+  const tags = [vals('subtype', 'ko')[0] || vals('type', 'ko')[0], ...sel('personality').slice(0, 2), sel('mood')[0]].filter(Boolean);
+  const q = new URLSearchParams({ title: finalTitle(), concept: idSentence('ko').slice(0, 150), category: cat, tags: tags.join(', ') });
+  return `${GALLERY_UPLOAD}&${q}`;
+}
+
 /* 결과 페이지 바로가기 목차 — 긴 결과에서 원하는 곳으로 이동 */
 function resultToc() {
-  const items = [['r-brief', '기획서'], ['r-master', '마스터'], ['r-sheet', '캐릭터 시트'], ['r-apps', '활용'], ['r-save', '저장 · 갤러리']];
+  const items = [['r-brief', '기획서'], ['r-master', '마스터'], ['r-sheet', '캐릭터 시트'], ['r-apps', '활용'], ['r-title', '제목 · 갤러리']];
   return `<nav class="result-toc" aria-label="결과 바로가기">${items.map(([id, t]) => `<a href="#${id}">${t}</a>`).join('')}</nav>`;
 }
 
@@ -752,6 +830,8 @@ function renderResult() {
       ${apps || `<p class="empty">STEP 11에서 활용 방향을 선택하면 목적별 프롬프트가 만들어져요. <button type="button" class="link" data-act="goto" data-i="${stepIndex('apps')}">활용 방향 선택하기 →</button></p>`}
     </article>
 
+    ${titleBox()}
+
     <!-- 프로젝트 저장 · 불러오기 (제품 디자인 메이커와 같은 구성) -->
     <article class="card out save-box" id="r-save">
       <header><h2>프로젝트 저장 · 불러오기</h2></header>
@@ -767,7 +847,8 @@ function renderResult() {
       <p class="muted small">※ PDF는 제출·출력용이에요. 다시 수정하려면 '작업파일(.json)'을 저장해 주세요.</p>
       <div class="gallery-cta">
         <p>🖼 완성한 캐릭터 이미지가 있나요?</p>
-        <a class="btn primary big" href="${GALLERY_UPLOAD}" target="_blank" rel="noopener">✨ 갤러리에 자랑하기 →</a>
+        <a class="btn primary big" href="${esc(galleryUrl())}" data-act="gallery-go" target="_blank" rel="noopener">✨ 갤러리에 자랑하기 →</a>
+        <p class="muted small" id="galleryTitle">제목 「${esc(finalTitle())}」 · 한 줄 소개 · 카테고리 · 태그가 등록 화면에 자동으로 들어가요</p>
       </div>
     </article>
   </section>`;
@@ -944,6 +1025,9 @@ document.addEventListener('click', (e) => {
     case 'restart':
       if (!confirm('입력한 내용을 모두 지우고 처음부터 다시 만들까요?\n(필요하면 먼저 프로젝트를 저장하세요)')) return;
       state = fresh(); save(); render(); window.scrollTo({ top: 0 }); return;
+    case 'title-pick': state.titlePick = +el.dataset.i; state.titleCustom = ''; break;
+    case 'title-more': state.titleSeed = (state.titleSeed || 0) + 1; state.titleCustom = ''; break;
+    case 'gallery-go': el.href = galleryUrl(); return; // 누르는 순간의 제목으로 연결
     case 'recover-reset': state = fresh(); save(); render(); window.scrollTo({ top: 0 }); return;
     default: return;
   }
@@ -961,6 +1045,15 @@ document.addEventListener('input', (e) => {
     case 'text': state.v[id] = el.value; break;
     case 'custom-input': state.v[id] = { ...chipState(id), customOn: true, custom: el.value }; break;
     case 'id-override': state.idOverride = el.value; break;
+    case 'title-custom': {
+      state.titleCustom = el.value;
+      /* 다시 그리지 않고 추천 카드 선택 표시와 갤러리 안내만 갱신 (입력 중 커서 유지) */
+      const on = !el.value.trim();
+      main.querySelectorAll('.title-card').forEach((c) => c.classList.toggle('on', on && +c.dataset.i === (state.titlePick || 0)));
+      const g = $('#galleryTitle');
+      if (g) g.textContent = `제목 「${finalTitle()}」 · 한 줄 소개 · 카테고리 · 태그가 등록 화면에 자동으로 들어가요`;
+      break;
+    }
     case 'color-pick': {
       state.colors[k].hex = el.value.toUpperCase();
       const hex = main.querySelector(`[data-act="color-hex"][data-k="${k}"]`);
