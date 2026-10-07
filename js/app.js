@@ -44,7 +44,11 @@ function normalize(raw, version) {
   st.colors = {};
   ['main', 'sub', 'point'].forEach((k) => {
     const c = isObj(col[k]) ? col[k] : {};
-    st.colors[k] = { hex: str(c.hex), name: str(c.name) };
+    st.colors[k] = { hex: str(c.hex), name: str(c.name), manual: !!c.manual };
+    /* 예전 저장본: 팔레트 프리셋 이름이 남아 있는데 색이 바뀐 경우 새 색 이름으로 정리 */
+    const x = st.colors[k];
+    const preset = PALETTE_PRESETS.flatMap((p) => p.c).find(([, n]) => n === x.name);
+    if (!x.manual && preset && /^#[0-9a-f]{6}$/i.test(x.hex) &&preset[0].toUpperCase() !== x.hex.toUpperCase()) x.name = colorName(x.hex);
   });
   st.locks = strs(st.locks);
   st.unlocked = strs(st.unlocked);
@@ -1058,6 +1062,7 @@ document.addEventListener('input', (e) => {
       state.colors[k].hex = el.value.toUpperCase();
       const hex = main.querySelector(`[data-act="color-hex"][data-k="${k}"]`);
       if (hex) hex.value = state.colors[k].hex;
+      autoColorName(k);
       refreshStyleThumbs();
       break;
     }
@@ -1068,11 +1073,12 @@ document.addEventListener('input', (e) => {
       if (validHex(v)) {
         const pick = main.querySelector(`[data-act="color-pick"][data-k="${k}"]`);
         if (pick) pick.value = v.toLowerCase();
+        autoColorName(k);
         refreshStyleThumbs();
       }
       break;
     }
-    case 'color-name': state.colors[k].name = el.value; break;
+    case 'color-name': state.colors[k].name = el.value; state.colors[k].manual = !!el.value.trim(); break;
     case 'tr': {
       const ko = koInputs()[+el.dataset.i];
       if (ko) state.tr = { ...(state.tr || {}), [ko]: el.value };
@@ -1098,6 +1104,15 @@ document.addEventListener('keydown', (e) => {
     if (e.target.value.trim()) { addLocks(e.target.value); save(); render(); $('#lockInput').focus(); }
   }
 });
+
+/* 색을 바꾸면 색 이름도 새 색에 맞게 (직접 쓴 이름은 그대로 둠) — 이전 이름(예: Forest Green)이 프롬프트에 남지 않게 */
+function autoColorName(k) {
+  const c = state.colors[k];
+  if (c.manual || !validHex(c.hex)) return;
+  c.name = colorName(c.hex);
+  const inp = main.querySelector(`[data-act="color-name"][data-k="${k}"]`);
+  if (inp) inp.value = c.name;
+}
 
 function refreshStyleThumbs() {
   const col = currentColors();

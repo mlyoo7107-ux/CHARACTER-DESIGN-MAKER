@@ -83,11 +83,23 @@ const TR_DICT = [
   ['구름', 'cloud'], ['별', 'star'], ['달', 'moon'], ['해', 'sun'], ['물방울', 'water drop'],
   ['우체부', 'mail carrier'], ['요리사', 'chef'], ['탐험가', 'explorer'], ['마법사', 'wizard'], ['소방관', 'firefighter'], ['의사', 'doctor'], ['선생님', 'teacher'], ['화가', 'painter'], ['농부', 'farmer'], ['기사', 'knight'], ['꼬마', 'little'], ['숲속', 'forest'], ['숲', 'forest'], ['바다', 'sea'], ['마을', 'village'], ['우체국', 'post office'],
   ['특별한', 'distinctive'], ['특징', 'feature'],
+
+  /* --- 동물 (직접입력에 자주 나오는 것) --- */
+  ['올빼미', 'owl'], ['앵무새', 'parrot'], ['참새', 'sparrow'], ['독수리', 'eagle'], ['비둘기', 'pigeon'], ['병아리', 'chick'], ['닭', 'chicken'], ['펭귄', 'penguin'], ['새', 'bird'],
+  ['고양이', 'cat'], ['강아지', 'puppy'], ['토끼', 'rabbit'], ['여우', 'fox'], ['호랑이', 'tiger'], ['사자', 'lion'], ['곰', 'bear'], ['햄스터', 'hamster'], ['생쥐', 'mouse'], ['돼지', 'pig'], ['원숭이', 'monkey'],
+  ['코끼리', 'elephant'], ['기린', 'giraffe'], ['얼룩말', 'zebra'], ['거북이', 'turtle'], ['물고기', 'fish'], ['상어', 'shark'], ['돌고래', 'dolphin'], ['나비', 'butterfly'], ['꿀벌', 'bee'], ['무당벌레', 'ladybug'], ['달팽이', 'snail'], ['드래곤', 'dragon'], ['유니콘', 'unicorn'],
+
+  /* --- 소품·형태 --- */
+  ['후드가 달린', 'hooded'], ['후드 달린', 'hooded'], ['모자가 달린', 'hooded'], ['후드', 'hood'],
+  ['만년필', 'fountain pen'], ['연필', 'pencil'], ['크레파스', 'crayons'], ['색연필', 'colored pencils'], ['펜', 'pen'], ['공책', 'notebook'], ['노트', 'notebook'], ['스케치북', 'sketchbook'], ['팔레트', 'palette'],
+  ['열쇠', 'key'], ['등불', 'lantern'], ['램프', 'lamp'], ['바구니', 'basket'], ['지도', 'map'], ['망원경', 'telescope'], ['카메라', 'camera'], ['마이크', 'microphone'], ['시계', 'clock'], ['컵', 'cup'],
+  ['형태', 'shape'], ['모습', 'look'],
 ].sort((a, b) => b[0].length - a[0].length);
 
 /* 조사·어미 정리 */
 function trCleanup(s) {
   return s
+    .replace(/([a-zA-Z)])\s?(와|과|하고)\s+(?=[a-zA-Z])/g, '$1 and ') // 만년필과 책 → fountain pen and book
     .replace(/([a-zA-Z)])\s?(은|는|이|가|을|를|의|도|만|에|에서|에게|처럼|와|과|로|으로|이고|이며|이다|임|함|색)(?=[\s,./]|$)/g, '$1')
     .replace(/\s+/g, ' ')
     .replace(/\s([,.!?])/g, '$1')
