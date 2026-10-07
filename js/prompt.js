@@ -710,8 +710,8 @@ function buildVideo(c) {
   const style = c.style || '';
 
   const keepRef = i2v
-    ? L(`첨부한 마스터 이미지를 첫 프레임으로 사용. 캐릭터는 이미지와 완전히 동일하게 유지${core.length ? ` (${core.join(', ')})` : ''} — 다시 디자인하지 말 것`,
-      `Use the attached master image as the first frame. Keep the character exactly as in the image${core.length ? ` (${core.join(', ')})` : ''} — do not redesign it`)
+    ? L(`첨부한 시작 이미지(시작 프레임 이미지 또는 마스터 이미지)를 첫 프레임으로 사용. 캐릭터는 이미지와 완전히 동일하게 유지${core.length ? ` (${core.join(', ')})` : ''} — 다시 디자인하지 말 것`,
+      `Use the attached start image (start frame image or master image) as the first frame. Keep the character exactly as in the image${core.length ? ` (${core.join(', ')})` : ''} — do not redesign it`)
     : L(`캐릭터: ${c.idSentence}${c.core.length ? ` 핵심 특징: ${c.core.join('; ')}` : ''}`, `Character: ${c.idSentence}${c.core.length ? ` Core identity: ${c.core.join('; ')}` : ''}`);
   const audio = noAudio ? L('소리 없음', 'No audio')
     : [sounds.length ? sounds.join(', ') : '', line ? L(`대사 — ${who}: "${line}"`, `Dialogue — ${cap(who)} says: "${line}"`) : ''].filter(Boolean).join('; ');
@@ -743,7 +743,7 @@ function buildVideo(c) {
     text = block(
       L(`${cam}. 캐릭터가 ${seq}. ${env ? `${env}. ` : ''}${feel}.`, `${cap(cam)}. The character ${seq}. ${env ? `${cap(env)}. ` : ''}${cap(feel)}.`),
       loopLine,
-      '---', L(`설정: 마스터 이미지를 시작 이미지로, ${sec}초, ${ar} — 한 번에 한 가지씩만 바꿔 가며 다듬으세요`, `Settings: master image as the start image, ${sec}s, ${ar} — refine one variable at a time`),
+      '---', L(`설정: 시작 프레임 이미지(또는 마스터 이미지)를 시작 이미지로, ${sec}초, ${ar} — 한 번에 한 가지씩만 바꿔 가며 다듬으세요`, `Settings: start frame image (or master image) as the start image, ${sec}s, ${ar} — refine one variable at a time`),
     );
   } else if (tool === 'kling') {
     text = block(
@@ -752,7 +752,7 @@ function buildVideo(c) {
       audio && L(`소리: ${audio}`, `Audio: ${audio}`),
       loopLine, i2v ? keepRef : '',
       L('네거티브 프롬프트: 모핑, 팔다리 왜곡, 깜빡임, 색 변화, 다른 캐릭터, 글자', 'Negative prompt: morphing, deformed limbs, flicker, color shift, extra characters, text'),
-      '---', L(`설정: ${sec}초, ${ar}${i2v ? ', 이미지→영상 (마스터 이미지를 시작 프레임으로)' : ''}`, `Settings: ${sec}s, ${ar}${i2v ? ', image-to-video with the master image as the start frame' : ''}`),
+      '---', L(`설정: ${sec}초, ${ar}${i2v ? ', 이미지→영상 (시작 프레임 이미지 또는 마스터 이미지를 시작 프레임으로)' : ''}`, `Settings: ${sec}s, ${ar}${i2v ? ', image-to-video with the start frame image (or master image) as the first frame' : ''}`),
     );
   } else {
     text = block(

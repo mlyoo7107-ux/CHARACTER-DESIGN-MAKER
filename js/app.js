@@ -469,6 +469,32 @@ function pbBridge() {
     : '<div class="pb-bridge"><span>📖 여기서는 장면 이미지 프롬프트를 간단히 만들어요. 이야기·장면 전체를 만드는 <b>COLOR.M 그림책 메이커</b>는 준비 중이에요.</span></div>';
 }
 
+/* 영상 결과 — 영상 프롬프트와 시작·끝 프레임 이미지를 쓰는 순서 */
+function videoGuide() {
+  const tool = sel('vid_tool')[0] || customOf('vid_tool') || '범용';
+  const t2v = sel('vid_mode').includes('텍스트→영상');
+  const hasEnd = ['vid_beat1', 'vid_beat2', 'vid_beat3'].filter(txt).length > 1;
+  const toolLine = tool === '범용'
+    ? '<b>범용</b>은 어떤 영상 AI에도 붙여 넣을 수 있는 기본 형식이에요. 쓰는 도구가 정해져 있으면 STEP 11에서 Veo·Sora·Kling·Runway 중 하나를 고르세요. 그 도구가 잘 알아듣는 형식으로 바뀌어요.'
+    : `<b>${esc(tool)}</b>에 맞춘 형식이에요. 그대로 붙여 넣으면 돼요.`;
+  return `<div class="video-guide">
+    <b>🎬 이렇게 사용하세요</b>
+    <ul class="vg-what">
+      <li><b>영상 프롬프트</b> — 영상 AI에 붙여 넣는 글이에요. ${toolLine}</li>
+      <li><b>시작 프레임 이미지</b> — 영상의 <b>첫 장면</b>이 될 그림이에요. 영상 AI가 아니라 이미지 AI(ChatGPT·나노바나나 등)에서 만들어요.</li>
+      ${hasEnd ? '<li><b>끝 프레임 이미지</b> — 영상의 <b>마지막 장면</b>이 될 그림이에요. 만드는 방법은 시작 프레임과 같아요.</li>' : ''}
+    </ul>
+    <ol>
+      ${t2v
+        ? '<li>영상 AI에서 <b>텍스트로 영상 만들기</b>를 고르고, 아래 <b>영상 프롬프트</b>를 붙여 넣어 생성하세요.</li><li>캐릭터가 자꾸 달라지면 <b>이미지로 영상 만들기</b> 방식이 더 잘 유지돼요. 아래 시작 프레임 이미지를 만들어 함께 쓰세요.</li>'
+        : `<li><b>이미지 AI</b>에 마스터 이미지를 첨부하고, <b>시작 프레임 이미지</b> 프롬프트를 붙여 넣어 첫 장면 그림을 만드세요.${hasEnd ? ' 끝 프레임도 같은 방법으로 만들어요.' : ''}<br><small>첫 장면이 마스터 이미지와 거의 같다면 마스터 이미지를 그대로 써도 돼요.</small></li>
+      <li><b>영상 AI</b>에서 <b>이미지로 영상 만들기</b>(Image to Video)를 고르고, 첫 장면 그림을 시작 이미지로 올리세요.${hasEnd ? '<br><small>도구에 끝 프레임(End frame / Last frame) 칸이 있으면 끝 장면 그림도 올리세요. 캐릭터가 그 장면으로 자연스럽게 움직여요. 칸이 없으면 시작 이미지만 쓰면 돼요.</small>' : ''}</li>
+      <li><b>영상 프롬프트</b>를 붙여 넣고, 길이·비율을 프롬프트에 적힌 대로 맞춘 뒤 생성하세요.</li>`}
+      <li>마음에 들지 않으면 <b>한 번에 한 가지만</b> 바꿔서 다시 만들어요. 예를 들면 동작만, 또는 카메라만 바꿔요.</li>
+    </ol>
+  </div>`;
+}
+
 function appsField() {
   const pk = purposeKey();
   return `<div class="apps">${APPS.map((a) => {
@@ -667,9 +693,9 @@ function renderResult() {
   const f = formatted(r);
   const profileRows = r.profile.map(([k, v]) => `<tr><th>${esc(k)}</th><td>${esc(v)}</td></tr>`).join('');
   const apps = f.apps.map((a, i) => `<div class="app-group">
-      <h3>${a.app.icon} ${esc(a.app.title)}</h3>${APP_GETS[a.app.key] ? `<p class="muted small gets-line">${esc(APP_GETS[a.app.key])}</p>` : ''}${a.app.key === 'picturebook' ? pbBridge() : ''}
+      <h3>${a.app.icon} ${esc(a.app.title)}</h3>${APP_GETS[a.app.key] ? `<p class="muted small gets-line">${esc(APP_GETS[a.app.key])}</p>` : ''}${a.app.key === 'picturebook' ? pbBridge() : ''}${a.app.key === 'video' ? videoGuide() : ''}
       ${a.prompts.map((p, j) => `<div class="sub-out">
-        <header><b>${esc(p.title)}</b><button type="button" class="btn small" data-act="copy" data-key="app-${i}-${j}">프롬프트 복사</button></header>
+        <header><b>${esc(p.title)}${a.app.key === 'video' ? `<em class="where">${p.raw ? '→ 영상 AI에 붙여 넣기' : '→ 이미지 AI에 붙여 넣기'}</em>` : ''}</b><button type="button" class="btn small" data-act="copy" data-key="app-${i}-${j}">프롬프트 복사</button></header>
         <pre>${esc(p.text)}</pre></div>`).join('')}
     </div>`).join('');
 

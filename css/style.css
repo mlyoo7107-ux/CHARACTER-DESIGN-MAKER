@@ -577,3 +577,13 @@ body.bible-open { overflow: hidden; }
   .result .card[id] { scroll-margin-top: 60px; } /* html의 scroll-padding(머리말 높이)에 바로가기 줄 높이만 더함 */
   .preset { min-height: 36px; }
 }
+
+/* ---------- 결과: 영상 사용 안내 ---------- */
+.video-guide { margin: 0 0 12px; padding: 14px 16px; border-radius: 12px; background: var(--brand-ll); border: 1px solid #DCD3F7; font-size: 14px; color: var(--ink-2); line-height: 1.65; }
+.video-guide > b { color: var(--ink); }
+.video-guide ul, .video-guide ol { margin: 8px 0 0; padding-left: 20px; }
+.video-guide li { margin: 4px 0; }
+.video-guide li b { color: var(--ink); }
+.video-guide ol { border-top: 1px dashed #DCD3F7; padding-top: 8px; }
+.video-guide small { color: var(--ink-3); font-size: 13px; }
+.sub-out .where { display: inline-block; margin-left: 8px; font-style: normal; font-size: 12px; font-weight: 700; color: var(--brand); background: var(--brand-l); border-radius: 999px; padding: 2px 9px; vertical-align: 1px; }
