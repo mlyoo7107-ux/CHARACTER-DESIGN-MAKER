@@ -48,6 +48,23 @@
     .checks li::before { content: '✓'; color: var(--brand); font-weight: 800; }
 
     .lp-visual img { display: block; width: 100%; height: auto; max-width: 640px; margin: 0 auto; border-radius: 28px; box-shadow: 0 12px 40px rgba(34, 30, 51, .12); }
+    .edu { background: linear-gradient(180deg, #FFFFFF, #F7F5FD); }
+    .edu .eyebrow { margin-bottom: 6px; }
+    .edu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .edu-card { background: #fff; border: 1px solid #DDD5F7; border-radius: 18px; padding: 20px; }
+    .edu-card .ico { font-size: 30px; }
+    .edu-card > b { display: block; font-size: 17px; margin: 6px 0 8px; color: var(--brand); }
+    .edu-card ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 7px; font-size: 14px; line-height: 1.55; color: var(--ink-2); }
+    .edu-card ul b { color: var(--ink); }
+    .edu-contact { margin: 18px 0 0; text-align: center; font-size: 15px; color: var(--ink-2); background: #fff; border: 1px dashed #CFC9EE; border-radius: 14px; padding: 14px 16px; }
+    .edu-contact p { margin: 0; }
+    .edu-contact .mail-row { display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; margin: 10px 0 8px; }
+    .edu-contact .mail-addr { font-size: 18px; font-weight: 800; color: var(--brand); text-decoration: none; }
+    .edu-contact .mail-addr:hover { text-decoration: underline; }
+    .edu-contact .mail-tip { font-size: 13px; color: var(--ink-3); }
+    .edu-contact .mail-sub { margin-top: 4px; font-size: 14px; color: var(--ink-2); }
+    .copied-toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 20px; border-radius: 999px; font-size: 14px; font-weight: 600; z-index: 50; }
+    @media (max-width: 860px) { .edu-grid { grid-template-columns: 1fr; } }
     .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .compare > div { border-radius: 18px; padding: 22px; border: 1px solid var(--line); background: #fff; }
     .compare .bad { color: var(--ink-3); }
@@ -83,6 +100,9 @@
     .price-card .badge2 { display: inline-block; font-size: 12px; font-weight: 800; color: #fff; background: var(--brand); border-radius: 999px; padding: 3px 10px; }
     .price-card .name { font-size: 22px; font-weight: 800; margin: 10px 0 2px; }
     .price-card .tagline { color: var(--ink-2); margin: 0 0 14px; }
+    .price-card .promo { display: inline-block; margin-left: 4px; font-size: 12px; font-weight: 800; color: #B0306A; background: #FDE7F1; border-radius: 999px; padding: 3px 10px; }
+    .price-card .regular { margin-top: 2px; font-size: 14px; color: var(--ink-3); }
+    .price-card .regular em { font-style: normal; font-weight: 800; color: #D6336C; }
     .price-card .amount { font-size: 42px; font-weight: 900; letter-spacing: -.02em; }
     .price-card .amount small { font-size: 16px; font-weight: 600; color: var(--ink-3); }
     .price-card .once { color: var(--brand); font-weight: 700; margin: 2px 0 16px; }
@@ -144,9 +164,60 @@
         <li>그림책·굿즈·이모티콘·브랜드 마스코트 캐릭터를 AI로 만들어 보고 싶은 분</li>
         <li>AI로 이미지를 만들 때마다 캐릭터 얼굴과 모습이 달라져서 고민인 분</li>
         <li>캐릭터 아이디어는 있지만, 형태·컬러·특징을 어떻게 정해야 할지 막막한 분</li>
-        <li>수업·과제에서 캐릭터 디자인 과정을 체계적으로 배우고 기록하고 싶은 분</li>
+        <li>디자인 사고 과정을 가르치고 싶은 선생님, 수업·과제에서 그 과정을 기록하고 싶은 학생</li>
+        <li>안전교육·캠페인·마스코트처럼 메시지를 전할 캐릭터가 필요한 학교·기관</li>
         <li>전공자가 아니어도 나만의 캐릭터를 처음부터 기획해 보고 싶은 분</li>
       </ul>
+    </div>
+  </section>
+
+  <!-- 학교 · 교사 · 학부모 -->
+  <section class="lp edu">
+    <div class="lp-wrap">
+      <span class="eyebrow">FOR SCHOOL &amp; FAMILY</span>
+      <h2>학교 · 교사 · 학부모님께</h2>
+      <p class="lead">결과만 만들어 주는 도구가 아니라, <b>"왜 이렇게 디자인했는지"를 스스로 생각하게 하는</b> 디자인 수업 도구예요.</p>
+      <div class="edu-grid">
+        <div class="edu-card">
+          <span class="ico">👩‍🏫</span>
+          <b>선생님 · 수업</b>
+          <ul>
+            <li>목적 → 타깃 → 브리프 → 형태 → 컬러로 이어지는 <b>디자인 사고 과정</b>을 그대로 수업 흐름으로</li>
+            <li>학생마다 <b>디자인 기획서</b>가 자동 정리돼 발표·피드백·평가 자료로 활용</li>
+            <li>캐릭터 바이블 PDF·작업파일로 <b>과정 중심 포트폴리오</b> 기록</li>
+            <li>미술·디자인, 창의적 체험활동, 동아리, 진로 탐색 수업에</li>
+          </ul>
+        </div>
+        <div class="edu-card">
+          <span class="ico">🏫</span>
+          <b>학교 · 기관</b>
+          <ul>
+            <li>안전교육·생활습관·환경 캠페인 등 <b>전달할 메시지가 있는 캐릭터</b> 기획</li>
+            <li>학교·학급·동아리 <b>마스코트</b>를 학생 참여로 함께 만들기</li>
+            <li>교육 자료용 학습 카드·워크시트·<b>색칠 도안</b> 프롬프트까지</li>
+            <li><b>회원가입 없이</b> 사용하고, 입력 내용은 서버로 보내지 않고 각자 브라우저에만 저장</li>
+          </ul>
+        </div>
+        <div class="edu-card">
+          <span class="ico">👨‍👩‍👧</span>
+          <b>학부모 · 가정</b>
+          <ul>
+            <li>아이와 함께 질문에 답하며 <b>우리 아이만의 캐릭터</b> 만들기</li>
+            <li>아이가 좋아하는 캐릭터로 생활습관·그림책·색칠 놀이 자료 만들기</li>
+            <li>디자인·캐릭터 분야에 관심 있는 아이의 <b>진로 탐색</b> 첫걸음</li>
+            <li>초등 고학년부터는 직접, 저학년은 부모님과 함께 하면 좋아요</li>
+          </ul>
+        </div>
+      </div>
+      <div class="edu-contact">
+        <p>🏷️ 학교·학원·기관의 <b>단체·수업 이용</b> 또는 <b>교육 문의</b>는 이메일로 보내 주세요.</p>
+        <p class="mail-sub">COLOR.M이 직접 진행하는 캐릭터 디자인 강의·워크숍도 문의하실 수 있어요.</p>
+        <p class="mail-row">
+          <a class="mail-addr" href="mailto:mlyoo71@naver.com?subject=%5BCOLOR.M%20%EC%BA%90%EB%A6%AD%ED%84%B0%20%EB%A9%94%EC%9D%B4%EC%BB%A4%5D%20%EB%8B%A8%EC%B2%B4%C2%B7%EC%88%98%EC%97%85%20%EC%9D%B4%EC%9A%A9%20%2F%20%EA%B5%90%EC%9C%A1%20%EB%AC%B8%EC%9D%98">✉️ mlyoo71@naver.com</a>
+          <button type="button" class="btn small" id="copyMail">주소 복사</button>
+        </p>
+        <p class="mail-tip">메일 제목에 <b>[단체·수업 이용]</b> 또는 <b>[교육 문의]</b>, 내용에 기관명 · 대상과 인원 · 희망 일정을 적어 주시면 빠르게 안내해 드려요.</p>
+      </div>
     </div>
   </section>
 
@@ -240,10 +311,12 @@ yellow safety helmet; reflective vest …</pre>
       <h2>한 번 결제로, 평생 이용</h2>
       <p class="lead">지금은 무료 테스트 기간이에요. 마음껏 써 보시고 의견을 들려주세요.</p>
       <div class="price-card">
-        <span class="badge2">BASIC</span>
+        <span class="badge2">BASIC</span> <span class="promo">🎉 오픈 이벤트 · 12월 31일까지</span>
         <div class="name">캐릭터 디자인 메이커</div>
         <p class="tagline">목적에 맞는 캐릭터를 처음부터 기획하는 가장 쉬운 방법</p>
+        <!-- 2026-12-31까지 이벤트가 9,900원 — 2027-01-01부터 14,900원으로 변경할 것 (결제 서버 금액도 함께) -->
         <div class="amount">9,900<small>원</small></div>
+        <div class="regular"><em>이벤트가</em> · 2027년 1월 1일부터 14,900원</div>
         <p class="once">한 번 결제로, 평생 이용</p>
         <ul>
           <li>11단계 캐릭터 디자인 가이드 무제한</li>
@@ -275,6 +348,18 @@ yellow safety helmet; reflective vest …</pre>
       <details><summary>PC와 폰에서 같이 쓸 수 있나요?</summary><p>네. 같은 주소로 PC·폰·태블릿 어디서나 열 수 있어요.</p></details>
     </div>
   </section>
+
+  <script>
+    /* 문의 이메일 주소 복사 (메일 앱이 없는 PC·웹메일 사용자용) */
+    document.getElementById('copyMail').addEventListener('click', async () => {
+      const addr = 'mlyoo71@naver.com';
+      try { await navigator.clipboard.writeText(addr); } catch (e) {
+        const t = document.createElement('textarea'); t.value = addr; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove();
+      }
+      const n = document.createElement('div'); n.className = 'copied-toast'; n.textContent = '이메일 주소를 복사했어요';
+      document.body.appendChild(n); setTimeout(() => n.remove(), 1600);
+    });
+  </script>
 
   <footer class="site-footer">
     <img src="assets/logo.png" alt="COLOR.M">
