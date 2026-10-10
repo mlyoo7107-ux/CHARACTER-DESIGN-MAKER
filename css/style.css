@@ -61,7 +61,7 @@ html { scroll-padding-top: calc(var(--head-h) + 12px); }
 .biz-info summary { cursor: pointer; display: inline-block; }
 .biz-info p { margin: 8px 0 0; line-height: 1.7; }
 .top-actions { display: flex; gap: 6px; align-items: center; }
-.home-badge { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--brand); margin-left: 4px; }
+.home-badge { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--brand); margin-left: auto; }
 .home-badge:hover { background: var(--brand-d); }
 
 /* ---------- 버튼 ---------- */
