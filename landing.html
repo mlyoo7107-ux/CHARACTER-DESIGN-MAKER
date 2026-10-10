@@ -96,7 +96,8 @@
     .note { margin-top: 18px; font-size: 13px; color: var(--ink-3); line-height: 1.7; }
 
     .pricing { text-align: center; background: linear-gradient(160deg, #F3F0FF, #FDEFF6); }
-    .price-card { max-width: 440px; margin: 24px auto 0; background: #fff; border: 2px solid var(--brand); border-radius: 22px; padding: 28px 26px; text-align: left; box-shadow: var(--shadow); }
+    .price-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 18px; max-width: 860px; margin: 24px auto 0; align-items: start; text-align: left; }
+    .price-card { background: #fff; border: 2px solid var(--brand); border-radius: 22px; padding: 28px 26px; text-align: left; box-shadow: var(--shadow); }
     .price-card .badge2 { display: inline-block; font-size: 12px; font-weight: 800; color: #fff; background: var(--brand); border-radius: 999px; padding: 3px 10px; }
     .price-card .name { font-size: 22px; font-weight: 800; margin: 10px 0 2px; }
     .price-card .tagline { color: var(--ink-2); margin: 0 0 14px; }
@@ -111,6 +112,12 @@
     .price-card li.x { color: var(--ink-3); }
     .price-card li.x::before { content: '✕  '; color: var(--ink-3); }
     .price-card .soon { width: 100%; justify-content: center; opacity: .6; cursor: not-allowed; }
+    .price-card.alt { border: 1px solid var(--line); box-shadow: none; }
+    .price-card.alt .badge2 { background: #EFEAFF; color: var(--brand); }
+    .price-card.alt .amount { font-size: 26px; }
+    .price-card.alt .btn { width: 100%; justify-content: center; }
+    .price-card .mail-sub { margin: 10px 0 0; font-size: 12.5px; color: var(--ink-3); text-align: center; }
+    @media (max-width: 760px) { .price-grid { grid-template-columns: 1fr; } }
     .free-cta { margin-top: 18px; }
     .free-cta small { display: block; margin-top: 8px; color: var(--ink-3); }
     .perks { display: flex; justify-content: center; gap: 18px; flex-wrap: wrap; margin-top: 22px; font-size: 14px; color: var(--ink-2); }
@@ -313,6 +320,7 @@ yellow safety helmet; reflective vest …</pre>
     <div class="lp-wrap">
       <h2>한 번 결제로, 평생 이용</h2>
       <p class="lead">지금은 무료 테스트 기간이에요. 마음껏 써 보시고 의견을 들려주세요.</p>
+      <div class="price-grid">
       <div class="price-card">
         <span class="badge2">BASIC</span> <span class="promo">🎉 런칭가 · 선착순 100명 또는 2월 28일까지</span>
         <div class="name">캐릭터 디자인 메이커</div>
@@ -330,6 +338,20 @@ yellow safety helmet; reflective vest …</pre>
           <li class="x">AI 이미지 생성 기능 제외</li>
         </ul>
         <button type="button" class="btn soon" disabled>결제 준비 중이에요</button>
+      </div>
+      <div class="price-card alt">
+        <span class="badge2">학교 · 학원 · 기관</span>
+        <div class="name">🏫 수업·단체 이용권</div>
+        <p class="tagline">학급·학기 단위로 학생 모두가 함께 사용해요</p>
+        <div class="amount">1학급 연 79,000원<small> 부터 · 협의</small></div>
+        <ul>
+          <li>BASIC의 모든 기능을 학생 전원이 사용</li>
+          <li>수업 기간에 맞춘 수업용 이용 코드 발급</li>
+          <li>COLOR.M이 직접 진행하는 강의·워크숍 함께 문의 가능</li>
+        </ul>
+        <a class="btn lg" href="mailto:mlyoo71@naver.com?subject=%5BCOLOR.M%20%EC%BA%90%EB%A6%AD%ED%84%B0%20%EB%A9%94%EC%9D%B4%EC%BB%A4%5D%20%EB%8B%A8%EC%B2%B4%C2%B7%EC%88%98%EC%97%85%20%EC%9D%B4%EC%9A%A9%20%2F%20%EA%B5%90%EC%9C%A1%20%EB%AC%B8%EC%9D%98">✉️ 이메일로 문의하기</a>
+        <p class="mail-sub">mlyoo71@naver.com · 기관명 · 인원 · 희망 기간을 적어 주세요</p>
+      </div>
       </div>
       <div class="free-cta">
         <a class="btn primary lg" href="index.html">🎁 지금 무료로 써 보기 →</a>
