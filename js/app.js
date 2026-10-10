@@ -1245,5 +1245,16 @@ window.addEventListener('resize', syncHeadHeight);
 window.addEventListener('load', syncHeadHeight); // 웹폰트 로딩 후 높이 재측정
 window.addEventListener('scroll', () => { if (appHead) appHead.classList.toggle('scrolled', window.scrollY > 4); }, { passive: true });
 
+(function () {
+  const btn = $('#menuToggle');
+  const menu = $('#topActions');
+  if (!btn || !menu) return;
+  function close() { menu.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); }
+  function open() { menu.classList.add('open'); btn.setAttribute('aria-expanded', 'true'); }
+  btn.addEventListener('click', (e) => { e.stopPropagation(); menu.classList.contains('open') ? close() : open(); });
+  document.addEventListener('click', (e) => { if (menu.classList.contains('open') && !menu.contains(e.target) && e.target !== btn) close(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+})();
+
 render();
 syncHeadHeight();
