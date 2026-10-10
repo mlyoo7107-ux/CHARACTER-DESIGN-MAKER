@@ -38,9 +38,7 @@ button { cursor: pointer; }
 html { scroll-padding-top: calc(var(--head-h) + 12px); }
 .site-head {
   position: sticky; top: 0; z-index: 30;
-  background: rgba(246, 245, 250, .94);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: #f6f5fa;
   border-bottom: 1px solid var(--line);
 }
 .site-head.scrolled { box-shadow: 0 6px 18px rgba(34, 30, 51, .08); }
