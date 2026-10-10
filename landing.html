@@ -120,7 +120,10 @@
     .faq summary { cursor: pointer; font-weight: 700; font-size: 16px; }
     .faq details p { margin: 10px 0 0; color: var(--ink-2); line-height: 1.7; }
 
-    @media (max-width: 640px) {
+    .hero-art { margin: 38px auto 0; max-width: 560px; }
+.hero-art img { display: block; width: 100%; height: auto; border-radius: 28px; box-shadow: 0 12px 40px rgba(34, 30, 51, 0.16); }
+
+@media (max-width: 640px) {
       .compare, .sample { grid-template-columns: 1fr; }
       .lp-nav .hide-sm { display: none; }
       .hero { padding: 44px 0 40px; }
@@ -152,6 +155,9 @@
       </div>
       <div class="hero-flow" aria-label="디자인 과정">
         <span>목적</span><span>타깃</span><span>디자인 브리프</span><span>콘셉트</span><span>형태</span><span>의상·소품</span><span>컬러</span><span>스타일</span><span class="lock">🔒 Identity Lock</span><span>캐릭터 시트</span><span>활용</span>
+      </div>
+      <div class="hero-art">
+        <img src="assets/landing-hero.webp" width="1254" height="1254" alt="아이디어를 캐릭터로! — 스케치, 턴어라운드, 표정 시트, 포즈로 완성되는 캐릭터" fetchpriority="high">
       </div>
     </div>
   </section>
@@ -223,12 +229,7 @@
     </div>
   </section>
 
-  <!-- 대표 이미지 "아이디어를 캐릭터로!" — 파일이 없으면 자동으로 숨김 -->
-  <section class="lp lp-visual">
-    <div class="lp-wrap">
-      <img src="assets/landing-hero.webp" width="1254" height="1254" alt="아이디어를 캐릭터로! — 스케치, 턴어라운드, 표정 시트, 포즈로 완성되는 캐릭터" loading="lazy" onerror="this.closest('section').remove()">
-    </div>
-  </section>
+  
 
   <!-- 차별점 -->
   <section class="lp">
