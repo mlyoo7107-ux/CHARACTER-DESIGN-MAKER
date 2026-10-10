@@ -18,6 +18,7 @@
   --shadow: 0 1px 2px rgba(34, 30, 51, .04), 0 6px 20px rgba(34, 30, 51, .06);
 }
 * { box-sizing: border-box; }
+html { overflow-x: hidden; }
 html, body { margin: 0; }
 body {
   background: var(--bg);
@@ -43,7 +44,7 @@ html { scroll-padding-top: calc(var(--head-h) + 12px); }
 }
 .site-head.scrolled { box-shadow: 0 6px 18px rgba(34, 30, 51, .08); }
 .topbar {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
   padding: 12px 24px;
   background: #fff;
   border-bottom: 1px solid var(--line);
@@ -532,7 +533,7 @@ body.bible-open { overflow: hidden; }
   .topbar { padding: 10px 16px; }
   .brand .logo { height: 32px; }
   .brand .tag { display: none; }
-  .top-actions { gap: 0; }
+  .top-actions { gap: 0; flex-wrap: wrap; justify-content: flex-end; }
   .top-actions .btn.ghost { padding: 6px 7px; font-size: 13px; white-space: nowrap; }
   .stepper { padding: 10px 16px; }
   .layout { padding: 12px 16px 48px; gap: 16px; }
