@@ -1,0 +1,125 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>결제 확인 중 — COLOR.M</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<style>
+:root{--a:#6257A8;--b:#f5f1e8;--l:#e8e1d3;--t:#171512;--m:#7a7268}
+*{box-sizing:border-box}
+body{margin:0;background:var(--b);font-family:Arial,"Noto Sans KR",sans-serif;color:var(--t);word-break:keep-all}
+.wrap{max-width:480px;margin:auto;padding:60px 20px;text-align:center}
+.icon{font-size:44px}
+h1{font-size:22px;margin:16px 0 8px}
+p{color:var(--m);font-size:14px;line-height:1.6}
+.box{text-align:left;background:white;border:1px solid var(--l);border-radius:14px;padding:16px;margin-top:20px;font-size:13px;line-height:1.8}
+.box b{color:var(--t)}
+.go{display:block;width:100%;padding:16px;background:var(--a);color:white;border:0;border-radius:28px;font-size:16px;font-weight:bold;cursor:pointer;text-align:center;text-decoration:none;margin-top:22px}
+.go:hover{background:#4f4690}
+.go-outline{background:white;color:var(--a);border:1px solid var(--a)}
+.notice{font-size:12px;color:var(--m);margin-top:14px}
+.spinner{width:28px;height:28px;border:3px solid var(--l);border-top-color:var(--a);border-radius:50%;margin:0 auto;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+footer{text-align:center;padding:40px 20px}
+footer img{max-width:120px}
+</style></head><body>
+<div class="wrap" id="app">
+<div class="spinner"></div>
+<h1 style="margin-top:20px">결제 확인 중이에요…</h1>
+<p>잠시만 기다려 주세요.</p>
+</div>
+<footer><img src="assets/logo.png" alt="COLOR.M"></footer>
+<script>
+const STATUS_API_URL = "https://colorm-pdm-payment.milan71.workers.dev/";
+const PLAN_BY_PREFIX = {
+  char: { label: "BASIC", makerUrl: "index.html", unlockKey: "cmCharPaid" }
+};
+
+function render(html){ document.getElementById("app").innerHTML = html; }
+function cmDeviceId(){
+  try{
+    let id = localStorage.getItem("cmDeviceId");
+    if(!id){
+      id = crypto.randomUUID ? crypto.randomUUID().replace(/-/g, "") : Date.now().toString(36) + Math.random().toString(36).slice(2, 14);
+      localStorage.setItem("cmDeviceId", id);
+    }
+    return id;
+  }catch(e){ return ""; }
+}
+function copyDeviceLink(){
+  const link = window.__deviceLink || "";
+  if(!link)return;
+  navigator.clipboard.writeText(link).then(()=>alert("복사되었습니다! 다른 기기의 브라우저에 붙여넣어 주세요.")).catch(()=>alert("복사에 실패했어요. 주소를 직접 선택해서 복사해 주세요."));
+}
+function escapeHtml(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+(async function(){
+  const q = new URLSearchParams(location.search);
+  const orderId = q.get("orderId");
+
+  if(!orderId){
+    render(`<div class="icon">⚠️</div><h1>결제 정보를 확인할 수 없어요</h1><p>결제창을 통하지 않고 이 페이지로 바로 들어오신 것 같아요.</p><a class="go go-outline" href="landing.html">돌아가기</a>`);
+    return;
+  }
+
+  const prefix = orderId.split("-")[0];
+  const plan = PLAN_BY_PREFIX[prefix];
+  const planLabel = plan ? plan.label : "알 수 없음";
+
+  const MAX_TRIES = 10, INTERVAL_MS = 1500;
+  for(let i=0;i<MAX_TRIES;i++){
+    try{
+      const res = await fetch(STATUS_API_URL + "?orderId=" + encodeURIComponent(orderId) + "&device=" + encodeURIComponent(cmDeviceId()));
+      const data = await res.json().catch(()=>({}));
+      if(data && data.refunded){
+        render(`
+          <div class="icon">↩️</div>
+          <h1>환불 처리된 결제예요</h1>
+          <p>이 주문은 결제가 취소되어 이용할 수 없어요. 궁금한 점은 아래 주문번호와 함께 문의해 주세요.</p>
+          <div class="box"><div><b>상품</b>: ${escapeHtml(planLabel)}</div><div><b>주문번호</b>: ${escapeHtml(orderId)}</div></div>
+        `);
+        return;
+      }
+      if(data && data.limit){
+        render(`
+          <div class="icon">🔒</div>
+          <h1>이 결제는 이미 기기 ${Number(data.max)||3}대에서 사용 중이에요</h1>
+          <p>결제 1건으로 기기 ${Number(data.max)||3}대까지 이용할 수 있어요. 다른 기기에서 쓰시려면 아래 주문번호와 함께 문의해 주세요.</p>
+          <div class="box"><div><b>상품</b>: ${escapeHtml(planLabel)}</div><div><b>주문번호</b>: ${escapeHtml(orderId)}</div></div>
+        `);
+        return;
+      }
+      if(data && data.paid){
+        if(plan){ try{ localStorage.setItem(plan.unlockKey, "1"); }catch(e){} }
+        const makerUrl = plan ? plan.makerUrl : 'landing.html';
+        const deviceLink = plan ? (location.origin + location.pathname.replace(/payment-success\.html$/, "") + makerUrl + "?order=" + encodeURIComponent(orderId)) : "";
+        render(`
+          <div class="icon">🎉</div>
+          <h1>결제가 완료됐어요!</h1>
+          <p>${escapeHtml(planLabel)} 이용이 바로 시작돼요. 이 기기에서는 지금 바로 이용하실 수 있어요.</p>
+          <a class="go" href="${makerUrl}">메이커로 이동하기 →</a>
+          ${deviceLink ? `
+          <div class="box">
+            <div style="font-weight:bold;margin-bottom:8px">📱 다른 기기(폰 등)에서도 쓰고 싶으신가요?</div>
+            <p style="margin:0 0 10px">아래 주소를 복사해서 그 기기의 브라우저 주소창에 붙여넣으면 똑같이 이용하실 수 있어요. 이 링크로 <b>기기 3대까지</b> 이용할 수 있으니 본인만 사용해 주세요.</p>
+            <div id="deviceLinkText" style="word-break:break-all;background:#faf7f0;border:1px solid var(--l);border-radius:8px;padding:10px;font-size:12px">${escapeHtml(deviceLink)}</div>
+            <button class="go go-outline" style="margin-top:10px" onclick="copyDeviceLink()">🔗 링크 복사하기</button>
+            <p class="notice">📌 지금 복사 못 하셔도 괜찮아요 — 이 화면을 즐겨찾기하거나 캡처해두시면 나중에 이 주소로 다시 들어와서 확인할 수 있어요. 그래도 못 찾으시면 결제하신 정보로 문의해 주세요.</p>
+          </div>` : `<p class="notice">다른 기기(폰 등)에서도 쓰고 싶으시면, 결제하신 이메일로 문의해 주세요. 이용 링크를 보내드릴게요.</p>`}
+        `);
+        window.__deviceLink = deviceLink;
+        return;
+      }
+    }catch(e){ /* 네트워크 오류는 무시하고 재시도 */ }
+    await new Promise(r=>setTimeout(r, INTERVAL_MS));
+  }
+
+  render(`
+    <div class="icon">⏳</div>
+    <h1>결제 확인이 늦어지고 있어요</h1>
+    <p>결제는 정상적으로 진행됐을 수 있어요. 잠시 후 아래 버튼으로 다시 확인해 주세요.</p>
+    <div class="box"><div><b>상품</b>: ${escapeHtml(planLabel)}</div><div><b>주문번호</b>: ${escapeHtml(orderId)}</div></div>
+    <button class="go" onclick="location.reload()">다시 확인하기</button>
+    <p class="notice">계속 안 되면 이 화면을 캡처해서 문의해 주세요.</p>
+  `);
+})();
+</script>
+</body></html>
