@@ -137,6 +137,7 @@
       section.lp { padding: 42px 0; }
     }
   </style>
+<script src="https://lite.payapp.kr/public/api/v2/payapp-lite.js"></script>
 </head>
 <body>
   <header class="lp-nav">
@@ -319,7 +320,7 @@ yellow safety helmet; reflective vest …</pre>
   <section class="lp pricing">
     <div class="lp-wrap">
       <h2>한 번 결제로, 평생 이용</h2>
-      <p class="lead">지금은 무료 테스트 기간이에요. 마음껏 써 보시고 의견을 들려주세요.</p>
+      <p class="lead">무료로 3번 체험해보고, 마음에 들면 한 번 결제로 평생 이용하세요.</p>
       <div class="price-grid">
       <div class="price-card">
         <span class="badge2">BASIC</span> <span class="promo">🎉 런칭가 · 2월 28일까지</span>
@@ -337,7 +338,7 @@ yellow safety helmet; reflective vest …</pre>
           <li>수업 / 과제 / 포트폴리오에 활용</li>
           <li class="x">AI 이미지 생성 기능 제외</li>
         </ul>
-        <button type="button" class="btn soon" disabled>결제 준비 중이에요</button>
+        <button type="button" class="btn primary lg" style="width:100%;justify-content:center" onclick="startPayment()">19,900원으로 시작하기 →</button>
       </div>
       <div class="price-card alt">
         <span class="badge2">학교 · 학원 · 기관</span>
@@ -375,6 +376,28 @@ yellow safety helmet; reflective vest …</pre>
   </section>
 
   <script>
+    /* 결제 — 페이앱(PayApp) */
+    const PAY_CONFIG = {
+      PAYAPP_USERID: "colorm",
+      FEEDBACK_API_URL: "https://colorm-pdm-payment.milan71.workers.dev/"
+    };
+    PayApp.setDefault('userid', PAY_CONFIG.PAYAPP_USERID);
+    PayApp.setDefault('shopname', 'COLOR.M');
+    function startPayment(){
+      const orderId = 'char-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+      PayApp.setParam('goodname', 'COLOR.M BASIC · Character Design Maker');
+      PayApp.setParam('price', '19900');
+      PayApp.setParam('var1', orderId);
+      PayApp.setParam('var2', 'agree-refund:char:v1');
+      PayApp.setParam('feedbackurl', PAY_CONFIG.FEEDBACK_API_URL);
+      PayApp.setParam('returnurl', PAY_CONFIG.FEEDBACK_API_URL + 'return?orderId=' + orderId);
+      PayApp.setParam('checkretry', 'y');
+      PayApp.setParam('smsuse', 'n');
+      PayApp.setParam('redirectpay', '1');
+      PayApp.setParam('skip_cstpage', 'y');
+      PayApp.payrequest();
+    }
+
     /* 문의 이메일 주소 복사 (메일 앱이 없는 PC·웹메일 사용자용) */
     document.getElementById('copyMail').addEventListener('click', async () => {
       const addr = 'mlyoo71@naver.com';
