@@ -3,6 +3,32 @@ const STORE_KEY = 'colorm-character-design-maker-v2';
 /* COLOR.M MAKER GALLERY — 캐릭터 디자인 탭의 작품 올리기 */
 const GALLERY_UPLOAD = 'https://mlyoo7107-ux.github.io/PRODUCT-DESIGN-MAKER/gallery/upload.html?product=CHARACTER_MAKER';
 
+/* ---------- 결제 · 무료 체험 (제품디자인 메이커와 같은 서버/방식, 앱 구분만 'char') ---------- */
+const PAYMENT_STATUS_API_URL = 'https://colorm-pdm-payment.milan71.workers.dev/';
+const FREE_LIMIT = 3;
+function isPaid() { try { return localStorage.getItem('cmCharPaid') === '1'; } catch (e) { return false; } }
+function getFreeUsed() { try { return parseInt(localStorage.getItem('cmCharFreeUsed') || '0', 10) || 0; } catch (e) { return 0; } }
+function checkFreeLimit() { return isPaid() || getFreeUsed() < FREE_LIMIT; }
+function useFreeTry() { if (isPaid()) return; try { localStorage.setItem('cmCharFreeUsed', String(getFreeUsed() + 1)); } catch (e) {} }
+// 다른 기기(폰 등)에서 쓰기 위한 개인 링크: index.html?order=<주문번호> — 결제 성공 화면에서 자동으로 만들어줘요.
+(function applyOrderUnlockParam() {
+  try {
+    const q = new URLSearchParams(location.search);
+    const orderId = q.get('order');
+    if (!orderId) return;
+    fetch(PAYMENT_STATUS_API_URL + '?orderId=' + encodeURIComponent(orderId))
+      .then((r) => r.json()).then((data) => {
+        if (data && data.paid && data.plan === 'char') {
+          localStorage.setItem('cmCharPaid', '1');
+          if (typeof render === 'function') render();
+        }
+      }).catch(() => {}).finally(() => {
+        const url = new URL(location.href); url.searchParams.delete('order');
+        history.replaceState(null, '', url.toString());
+      });
+  } catch (e) {}
+})();
+
 function fresh() {
   return {
     step: 0,
@@ -18,6 +44,7 @@ function fresh() {
     refImage: '',
     core: null, // ★핵심 특징 — null이면 자동 추천
     titleSeed: 0, titlePick: 0, titleCustom: '', // 작품 제목 (추천 · 직접 쓰기)
+    resultUnlocked: false, // 이 캐릭터 결과를 무료 체험(또는 결제)으로 이미 열어봤는지
   };
 }
 
@@ -550,7 +577,15 @@ function render() {
 function renderView() {
   renderStepper();
   const s = STEPS[state.step];
-  if (s.result) { renderResult(); updateSide(); return; }
+  if (s.result) {
+    if (!state.resultUnlocked) {
+      if (!checkFreeLimit()) { renderPaywall(); return; }
+      useFreeTry();
+      state.resultUnlocked = true;
+      save();
+    }
+    renderResult(); updateSide(); return;
+  }
   const tip = TIPS[purposeKey()] && TIPS[purposeKey()][s.key];
   const pLabel = sel('purpose')[0] || '';
   main.innerHTML = `<section class="step${s.lock ? ' is-lock' : ''}">
@@ -767,6 +802,26 @@ function galleryUrl() {
 function resultToc() {
   const items = [['r-brief', '기획서'], ['r-master', '마스터'], ['r-sheet', '캐릭터 시트'], ['r-apps', '활용'], ['r-title', '제목 · 갤러리']];
   return `<nav class="result-toc" aria-label="결과 바로가기">${items.map(([id, t]) => `<a href="#${id}">${t}</a>`).join('')}</nav>`;
+}
+
+function renderPaywall() {
+  const left = Math.max(0, FREE_LIMIT - getFreeUsed());
+  main.innerHTML = `<section class="step result">
+    <header class="step-head">
+      <span class="no">RESULT</span>
+      <h1>🔒 무료 체험을 모두 사용하셨어요</h1>
+      <p class="q">무료 ${FREE_LIMIT}회를 다 사용하셨어요. 계속 사용하시려면 구매가 필요해요 — 1회 결제로 횟수 제한 없이 평생 이용할 수 있어요.</p>
+    </header>
+    <article class="card out" style="text-align:center;padding:28px">
+      <p class="muted">남은 무료 체험: ${left}회</p>
+      <a class="btn primary" href="landing.html" style="display:inline-block;margin-top:10px;text-decoration:none">19,900원으로 계속 사용하기 →</a>
+    </article>
+    <nav class="step-nav">
+      <button type="button" class="btn" data-act="prev">← 이전</button>
+      <span></span>
+    </nav>
+  </section>`;
+  updateSide();
 }
 
 function renderResult() {
