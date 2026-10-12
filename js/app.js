@@ -10,13 +10,23 @@ function isPaid() { try { return localStorage.getItem('cmCharPaid') === '1'; } c
 function getFreeUsed() { try { return parseInt(localStorage.getItem('cmCharFreeUsed') || '0', 10) || 0; } catch (e) { return 0; } }
 function checkFreeLimit() { return isPaid() || getFreeUsed() < FREE_LIMIT; }
 function useFreeTry() { if (isPaid()) return; try { localStorage.setItem('cmCharFreeUsed', String(getFreeUsed() + 1)); } catch (e) {} }
+function cmDeviceId() {
+  try {
+    let id = localStorage.getItem('cmDeviceId');
+    if (!id) {
+      id = crypto.randomUUID ? crypto.randomUUID().replace(/-/g, '') : Date.now().toString(36) + Math.random().toString(36).slice(2, 14);
+      localStorage.setItem('cmDeviceId', id);
+    }
+    return id;
+  } catch (e) { return ''; }
+}
 // 다른 기기(폰 등)에서 쓰기 위한 개인 링크: index.html?order=<주문번호> — 결제 성공 화면에서 자동으로 만들어줘요.
 (function applyOrderUnlockParam() {
   try {
     const q = new URLSearchParams(location.search);
     const orderId = q.get('order');
     if (!orderId) return;
-    fetch(PAYMENT_STATUS_API_URL + '?orderId=' + encodeURIComponent(orderId))
+    fetch(PAYMENT_STATUS_API_URL + '?orderId=' + encodeURIComponent(orderId) + '&device=' + encodeURIComponent(cmDeviceId()))
       .then((r) => r.json()).then((data) => {
         if (data && data.paid && data.plan === 'char') {
           localStorage.setItem('cmCharPaid', '1');
