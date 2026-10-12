@@ -338,6 +338,8 @@ yellow safety helmet; reflective vest …</pre>
           <li>수업 / 과제 / 포트폴리오에 활용</li>
           <li class="x">AI 이미지 생성 기능 제외</li>
         </ul>
+        <label style="display:block;text-align:left;font-size:13px;font-weight:bold;margin:0 0 6px">이메일 <small style="font-weight:normal;color:var(--ink-3)">(결제 확인·다른 기기 연결 링크를 받으실 주소)</small></label>
+        <input type="email" id="buyerEmail" placeholder="example@email.com" style="width:100%;box-sizing:border-box;padding:11px;border:1px solid var(--line);border-radius:9px;font-size:14px;margin-bottom:12px">
         <button type="button" class="btn primary lg" style="width:100%;justify-content:center" onclick="startPayment()">19,900원으로 시작하기 →</button>
       </div>
       <div class="price-card alt">
@@ -384,12 +386,20 @@ yellow safety helmet; reflective vest …</pre>
     };
     PayApp.setDefault('userid', PAY_CONFIG.PAYAPP_USERID);
     PayApp.setDefault('shopname', 'COLOR.M');
+    function isValidEmail(v){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);}
     function startPayment(){
+      const buyerEmail = document.getElementById('buyerEmail').value.trim();
+      if(!isValidEmail(buyerEmail)){
+        alert('결제 확인 메일을 받으실 이메일 주소를 정확히 입력해 주세요.');
+        return;
+      }
       const orderId = 'char-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
       PayApp.setParam('goodname', 'COLOR.M BASIC · Character Design Maker');
       PayApp.setParam('price', '19900');
       PayApp.setParam('var1', orderId);
       PayApp.setParam('var2', 'agree-refund:char:v1');
+      // 결제완료 메일을 보낼 주소 — 서버가 결제 통보에서 그대로 돌려받아요
+      PayApp.setParam('var3', buyerEmail);
       PayApp.setParam('feedbackurl', PAY_CONFIG.FEEDBACK_API_URL);
       PayApp.setParam('returnurl', PAY_CONFIG.FEEDBACK_API_URL + 'return?orderId=' + orderId);
       PayApp.setParam('checkretry', 'y');
