@@ -85,6 +85,8 @@ a.btn { display: inline-flex; align-items: center; text-decoration: none; color:
 }
 .btn.ghost { border-color: transparent; background: transparent; padding: 8px 12px; font-size: 14px; color: var(--ink-2); }
 .btn.ghost:hover { background: var(--brand-l); color: var(--brand); }
+.btn.ghost.menu-danger { color: #c43d3d; }
+.btn.ghost.menu-danger:hover { background: #fdeaea; color: #a32d2d; }
 .btn.small { padding: 6px 14px; font-size: 13px; }
 .btn.danger:hover { border-color: var(--danger); color: var(--danger); }
 .icon-btn { border: 0; background: transparent; color: var(--ink-3); padding: 4px 8px; border-radius: 8px; }
