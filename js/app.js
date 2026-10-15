@@ -32,10 +32,9 @@ function cmDeviceId() {
           localStorage.setItem('cmCharPaid', '1');
           if (typeof render === 'function') render();
         }
-      }).catch(() => {}).finally(() => {
-        const url = new URL(location.href); url.searchParams.delete('order');
-        history.replaceState(null, '', url.toString());
-      });
+      }).catch(() => {});
+    // 주소의 ?order=...는 일부러 안 지워요 — 지우면 카톡 등에서 "다른 브라우저로 열기"로 넘길 때
+    // 정보가 사라져서 결제 인식이 안 되는 문제가 생겨요.
   } catch (e) {}
 })();
 
